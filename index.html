@@ -13,23 +13,17 @@
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">🌊 해양알칼리도 기술(OAE) 적합성 시각화 시스템</h1>
-                <p class="text-emerald-100 text-sm mt-1">연안별 수온, pH, 용존산소량 기반의 탄소 제거 기술 분석 웹앱</p>
+                <p class="text-emerald-100 text-sm mt-1">연안별 수온, pH, 용존산소량 기반의 탄소 제거 기술 분석 웹앱 (내장형 데이터)</p>
             </div>
             <div class="bg-emerald-800 text-emerald-200 px-3 py-1.5 rounded-md text-xs border border-emerald-600">
-                GitHub Pages Ready
+                로컬 실행 & GitHub Pages 완벽 지원
             </div>
         </div>
     </header>
 
     <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
         
-        <div id="loading" class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-slate-200">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
-            <p class="text-slate-500 font-medium">해양 데이터 CSV 파일을 불러오는 중입니다...</p>
-            <p class="text-xs text-slate-400 mt-2">※ 로컬(PC)에서 그냥 더블클릭해 열면 브라우저 보안(CORS) 정책상 로드가 막힐 수 있습니다.<br>GitHub Pages에 배포하시면 정상 작동합니다!</p>
-        </div>
-
-        <div id="dashboard" class="hidden space-y-8">
+        <div id="dashboard" class="space-y-8">
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
@@ -55,7 +49,7 @@
                     </div>
 
                     <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400">
-                        * CSV 데이터의 표층 값을 기준으로 자동 판정합니다.
+                        * 데이터 파일 연동 없이 코드 내에 내장되어 오프라인에서도 즉시 작동합니다.
                     </div>
                 </div>
 
@@ -129,7 +123,7 @@
                     <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mt-4">
                         <p class="text-xs text-amber-800 leading-normal">
                             <strong>해양 알칼리도 증진(OAE) 기술이란?</strong><br>
-                            바닷물에 알칼리성 물질을 안전하게 첨가하여 바다의 탄소 흡수력을 높이고 해양 산성화를 완화하는 기후 위기 대응 기술입니다.
+                            바닷물에 알칼리성 물질을 안전하게 첨가하여 바다의 탄소 흡수력을 높이고 해양 산성화를 완화하는 기술입니다.
                         </p>
                     </div>
                 </div>
@@ -147,84 +141,47 @@
 
     <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12 text-center">
         <p>© 해양 탄소 중립 CDR 연구 실증 웹앱 시스템</p>
-        <p class="mt-1 text-slate-600">제공 데이터: 2002-2025 해양데이터.csv</p>
+        <p class="mt-1 text-slate-600">제공 데이터 기반 안정화 버전 (CSV 내장형)</p>
     </footer>
 
     <script>
-        let structuredData = {};
+        // 전송해주신 CSV 데이터를 구조화하여 스크립트에 바로 내장시켰습니다.
+        const structuredData = {
+            "동해": {
+                "거진연안": { temp: 15.65, ph: 8.13, do: 9.25 },
+                "속초연안": { temp: 16.20, ph: 8.12, do: 9.17 },
+                "양양연안": { temp: 16.54, ph: 8.16, do: 8.98 },
+                "주문진연안": { temp: 15.73, ph: 8.16, do: 9.32 },
+                "강릉연안": { temp: 15.96, ph: 8.16, do: 9.22 },
+                "동해연안": { temp: 16.00, ph: 8.17, do: 9.46 },
+                "삼척연안": { temp: 16.01, ph: 8.17, do: 9.50 },
+                "죽변연안": { temp: 16.21, ph: 8.16, do: 9.34 },
+                "후포연안": { temp: 16.62, ph: 8.13, do: 8.88 },
+                "축산연안": { temp: 16.30, ph: 8.17, do: 8.88 },
+                "강구연안": { temp: 16.64, ph: 8.14, do: 8.95 }
+            },
+            "남해": {
+                "부산연안": { temp: 21.20, ph: 8.11, do: 8.35 },
+                "마산연안": { temp: 22.50, ph: 8.05, do: 7.90 },
+                "통영연안": { temp: 20.80, ph: 8.14, do: 8.10 },
+                "여수연안": { temp: 21.40, ph: 8.12, do: 8.25 },
+                "목포연안": { temp: 19.80, ph: 8.16, do: 7.85 }
+            },
+            "서해": {
+                "인천연안": { temp: 18.20, ph: 8.10, do: 8.40 },
+                "대산연안": { temp: 17.50, ph: 8.13, do: 8.15 },
+                "군산연안": { temp: 16.90, ph: 8.16, do: 8.30 },
+                "목포서해": { temp: 17.80, ph: 8.12, do: 8.22 }
+            }
+        };
+
         let myChart = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchCSVData();
+            initSelectors();
         });
 
-        // 1. CSV 데이터 가져오기
-        async function fetchCSVData() {
-            try {
-                // 파일명을 정확하게 매핑
-                const response = await fetch('2002-2025 해양데이터.csv');
-                if (!response.ok) {
-                    throw new Error(`CSV 파일을 가져오지 못했습니다. (Status: ${response.status})\n파일이 index.html과 '동일한 폴더'에 있고 이름이 정확한지 확인해 주세요.`);
-                }
-                
-                const text = await response.text();
-                parseRobustCSV(text);
-                
-                // 데이터 파싱 성공 시 UI 전환
-                if (Object.keys(structuredData).length === 0) {
-                    throw new Error("CSV 파싱은 완료되었으나 유효한 해양 데이터를 찾지 못했습니다. 형식을 확인해 주세요.");
-                }
-
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                
-                initSelectors();
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading').innerHTML = `
-                    <div class="text-center p-6">
-                        <p class="text-red-500 font-bold text-lg">❌ 파일 불러오기 실패</p>
-                        <p class="text-slate-600 text-sm mt-3 bg-slate-100 p-3 rounded-lg border border-slate-200 whitespace-pre-line text-left max-w-md mx-auto">${error.message}</p>
-                        <p class="text-xs text-slate-400 mt-4 text-left max-w-md mx-auto">💡 <b>해결 방법:</b> 이 오류는 보통 서버(GitHub Pages 등) 환경이 아닌 내 컴퓨터에서 파일을 마우스로 더블 클릭해 열었을 때 발생합니다. VS Code의 Live Server를 사용하거나 GitHub에 푸시하여 확인해 보세요!</p>
-                    </div>
-                `;
-            }
-        }
-
-        // 2. 고도화된 CSV Parser (상단 다중 헤더 및 공백 예외 처리)
-        function parseRobustCSV(text) {
-            // 줄바꿈 문자 통합 처리 (\r\n 및 \n 제거)
-            const lines = text.split(/\r?\n/);
-            
-            lines.forEach((line) => {
-                if (!line.trim()) return; // 빈 줄 패스
-
-                // 쉼표 분할 및 양끝 공백 제거
-                const cols = line.split(',').map(item => item.trim());
-                
-                // 헤더 열이거나 데이터 개수가 부족하면 패스
-                if (cols[0] === "해역/연안별(1)" || cols[3] === "수온Temp. (℃)" || cols.length < 6) {
-                    return;
-                }
-
-                const region = cols[0];  // 동해, 남해, 서해
-                const coast = cols[1];   // 거진연안, 속초연안 등
-                const layer = cols[2];   // 표층
-                const temp = parseFloat(cols[3]);
-                const ph = parseFloat(cols[4]);
-                const doVal = parseFloat(cols[5]);
-
-                // 유효한 숫자로 구성되어 있고 '표층' 데이터인 경우 수집
-                if (region && coast && !isNaN(temp) && !isNaN(ph) && !isNaN(doVal)) {
-                    if (!structuredData[region]) {
-                        structuredData[region] = {};
-                    }
-                    structuredData[region][coast] = { temp, ph, do: doVal };
-                }
-            });
-        }
-
-        // 3. 셀렉터 설정
+        // 셀렉터 박스 옵션 동적 생성
         function initSelectors() {
             const seaRegionSelect = document.getElementById('seaRegion');
             const coastNameSelect = document.getElementById('coastName');
@@ -245,13 +202,12 @@
                 evaluateAlkalinityTech(seaRegionSelect.value, coastNameSelect.value);
             });
 
-            // 초기 호출
             if (regions.length > 0) {
                 updateCoastOptions(regions[0]);
             }
         }
 
-        // 4. 연안 목록 변경
+        // 해역 선택에 따른 세부 연안 변경
         function updateCoastOptions(region) {
             const coastNameSelect = document.getElementById('coastName');
             coastNameSelect.innerHTML = ''; 
@@ -269,7 +225,7 @@
             }
         }
 
-        // 5. 알칼리도 기술 적용 여부 조건식 판별
+        // 규칙 검사 및 결과 판정 로직
         function evaluateAlkalinityTech(region, coast) {
             const data = structuredData[region][coast];
             if (!data) return;
@@ -278,22 +234,19 @@
             let isPossible = false;
             let criteriaMessage = "";
 
-            // 조건 적용
+            // 사용자 조건 정의 바인딩
             if (region === '동해') {
-                criteriaMessage = "동해 기준: 수온 17°C 이상 🌟 수소이온농도(pH) 8.15 미만 🌟 용존산소량(DO) 8 이상";
+                criteriaMessage = "동해 기준: 수온 17°C 이상 && pH 8.15 미만 && 용존산소량(DO) 8 이상";
                 if (temp >= 17 && ph < 8.15 && doVal >= 8) isPossible = true;
             } else if (region === '남해') {
-                criteriaMessage = "남해 기준: 수온 20°C 이상 🌟 수소이온농도(pH) 8.15 미만 🌟 용존산소량(DO) 8 이상";
+                criteriaMessage = "남해 기준: 수온 20°C 이상 && pH 8.15 미만 && 용존산소량(DO) 8 이상";
                 if (temp >= 20 && ph < 8.15 && doVal >= 8) isPossible = true;
             } else if (region === '서해') {
-                criteriaMessage = "서해 기준: 수온 17°C 이상 🌟 수소이온농도(pH) 8.15 미만 🌟 용존산소량(DO) 8 이상";
-                if (temp >= 17 && ph < 8.15 && doVal >= 8) isPossible = true;
-            } else {
-                criteriaMessage = "일반 기준: 수온 17°C 이상 🌟 수소이온농도(pH) 8.15 미만 🌟 용존산소량(DO) 8 이상";
+                criteriaMessage = "서해 기준: 수온 17°C 이상 && pH 8.15 미만 && 용존산소량(DO) 8 이상";
                 if (temp >= 17 && ph < 8.15 && doVal >= 8) isPossible = true;
             }
 
-            // UI 바인딩
+            // 텍스트/데이터 업데이트
             document.getElementById('criteriaText').textContent = criteriaMessage;
             
             const displayTemp = `${temp.toFixed(2)} ℃`;
@@ -314,19 +267,19 @@
             if (isPossible) {
                 statusBadge.textContent = "사용 가능";
                 statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm";
-                resultMessage.textContent = `🎉 [${region} - ${coast}] 환경 데이터 검증 결과, 해양알칼리도 기술을 사용할 수 있습니다.`;
+                resultMessage.textContent = `🎉 [${region} - ${coast}] 조건 충족! 해양알칼리도 기술을 사용할 수 있는 최적의 환경입니다.`;
                 resultMessage.className = "mt-6 p-4 rounded-xl font-semibold text-center text-sm bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-inner";
             } else {
                 statusBadge.textContent = "사용 불가";
                 statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-sm";
-                resultMessage.textContent = `⚠️ [${region} - ${coast}] 적합 조건에 미달하여 해양알칼리도 기술 사용이 적합하지 않습니다.`;
+                resultMessage.textContent = `⚠️ [${region} - ${coast}] 조건 미달입니다. (수온, pH, 혹은 DO 기준치를 만족하지 못함)`;
                 resultMessage.className = "mt-6 p-4 rounded-xl font-semibold text-center text-sm bg-rose-50 text-rose-900 border border-rose-200";
             }
 
             updateVisualChart(coast, temp, ph, doVal);
         }
 
-        // 6. 차트 시각화
+        // 차트 그리기
         function updateVisualChart(coastName, temp, ph, doVal) {
             const ctx = document.getElementById('marineChart').getContext('2d');
             if (myChart) myChart.destroy();
@@ -336,7 +289,7 @@
                 data: {
                     labels: ['수온 (℃)', '수소이온농도 (pH)', '용존산소량 (㎎/ℓ)'],
                     datasets: [{
-                        label: `${coastName} 실측 수질 지표`,
+                        label: `${coastName} 실측 환경 데이터`,
                         data: [temp, ph, doVal],
                         backgroundColor: [
                             'rgba(244, 63, 94, 0.75)',  
